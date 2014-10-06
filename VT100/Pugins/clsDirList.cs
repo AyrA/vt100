@@ -7,6 +7,9 @@ using System.Threading;
 
 namespace VT100.PluginSystem
 {
+    /// <summary>
+    /// directory listing and plugin management plugin
+    /// </summary>
     public class DirList : IPlugin
     {
         private Thread T;
@@ -16,12 +19,18 @@ namespace VT100.PluginSystem
         private Dictionary<string, IPlugin> PluginCommands;
         private Dictionary<IPlugin, string> PluginHelp;
 
+        /// <summary>
+        /// Initializing
+        /// </summary>
         public DirList()
         {
             PluginCommands = new Dictionary<string, IPlugin>();
             PluginHelp = new Dictionary<IPlugin, string>();
         }
 
+        /// <summary>
+        /// returns true, if not dead (yet)
+        /// </summary>
         public bool IsRunning
         {
             get
@@ -34,6 +43,11 @@ namespace VT100.PluginSystem
             }
         }
 
+        /// <summary>
+        /// starts the plugin
+        /// </summary>
+        /// <param name="Con">Console</param>
+        /// <returns>true, if started successfully</returns>
         public bool Start(VTconsole Con)
         {
             if (T == null)
@@ -53,7 +67,11 @@ namespace VT100.PluginSystem
             return true;
         }
 
-        void C_TerminalStateChanged(VTconsole.TerminalState State)
+        /// <summary>
+        /// sends the main prompt if the terminal changes to ready
+        /// </summary>
+        /// <param name="State">terminal state</param>
+        private void C_TerminalStateChanged(VTconsole.TerminalState State)
         {
             if (hookEvent && State == VTconsole.TerminalState.Ready)
             {
@@ -66,6 +84,9 @@ namespace VT100.PluginSystem
             }
         }
 
+        /// <summary>
+        /// Stops the plugin
+        /// </summary>
         public void Stop()
         {
             cont = false;
@@ -83,6 +104,11 @@ namespace VT100.PluginSystem
             T = null;
         }
 
+        /// <summary>
+        /// Used to receive the command and help messages from plugins
+        /// </summary>
+        /// <param name="source">source plugin</param>
+        /// <param name="Message">message</param>
         public void RecMessage(IPlugin source, string Message)
         {
             if (Message.StartsWith("GETCOMMAND:"))
@@ -95,10 +121,20 @@ namespace VT100.PluginSystem
             }
         }
 
+        /// <summary>
+        /// receives messages in binary. (Not used here)
+        /// </summary>
+        /// <param name="source">(Not used here)</param>
+        /// <param name="Message">(Not used here)</param>
+        /// <param name="index">(Not used here)</param>
+        /// <param name="Length">(Not used here)</param>
         public void RecMessage(IPlugin source, byte[] Message, int index, int Length)
         {
         }
 
+        /// <summary>
+        /// Thread loop
+        /// </summary>
         private void run()
         {
             Environment.CurrentDirectory = @"C:\";
@@ -157,6 +193,10 @@ namespace VT100.PluginSystem
             }
         }
 
+        /// <summary>
+        /// executes a given command
+        /// </summary>
+        /// <param name="s">command</param>
         private void exec(string s)
         {
             switch (s.ToUpper())
@@ -313,22 +353,36 @@ namespace VT100.PluginSystem
             C.WriteLine("Command not found/invalid '{0}'", s);
         }
 
+        /// <summary>
+        /// blocks the caller until thread exit
+        /// </summary>
         public void Block()
         {
             T.Join();
         }
 
+        /// <summary>
+        /// Blocks the caller until thread exit or the specified time
+        /// </summary>
+        /// <param name="Timeout">maximum time to wait</param>
+        /// <returns>true, if exited</returns>
         public bool Block(int Timeout)
         {
             return T.Join(Timeout);
         }
 
+        /// <summary>
+        /// prints a list of directories and files in multiple autodetected columns
+        /// </summary>
+        /// <param name="List">List to print</param>
         private void printList(string[] List)
         {
             bool dir = true;
             int PAD = 2;
             int len = 0;
             int pos = 0;
+
+            //detects item length
             for (int i = 0; i < List.Length; i++)
             {
                 if (!string.IsNullOrEmpty(List[i]))
@@ -344,8 +398,11 @@ namespace VT100.PluginSystem
                     }
                 }
             }
+            //lists all items
             foreach (string s in List)
             {
+                //directories and files are seperated into two groubs by an
+                //empty entry in the list.
                 if (string.IsNullOrEmpty(s))
                 {
                     dir=false;
@@ -377,6 +434,10 @@ namespace VT100.PluginSystem
             }
         }
 
+        /// <summary>
+        /// human readable name for the plugin
+        /// </summary>
+        /// <returns>Plugin name</returns>
         public override string ToString()
         {
             return "INTERNAL:SimpleConsole";
