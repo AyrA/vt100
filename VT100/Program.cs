@@ -30,14 +30,14 @@ namespace VT100
         {
 #if DEBUG
             //while debugging we supply fake arguments matching our serial port
-            args = new string[] { "COM3,9600,n,8,1,n" };
+            args = new string[] { "COM3,9600,8,1,n,n" };
 #endif
             SerialOptions SO = parseParams(args);
 
             if (SO.valid)
             {
-                SerialPort SP = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.One);
-                SP.Handshake = Handshake.None;
+                SerialPort SP = new SerialPort(SO.Portname, SO.Baudrate, SO.Parity, SO.Databits, SO.Stopbits);
+                SP.Handshake = SO.Handshake;
                 SP.NewLine = "\r"; //VT100 return key is '\r'
                 SP.Open();
                 VTconsole C = new VTconsole(SP);

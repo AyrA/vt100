@@ -137,7 +137,9 @@ namespace VT100.PluginSystem
         /// </summary>
         private void run()
         {
+#if DEBUG
             Environment.CurrentDirectory = @"C:\";
+#endif
 
             hookEvent = true;
 
