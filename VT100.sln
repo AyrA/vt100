@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VT100", "VT100\VT100.csproj", "{4C0BEDF2-3237-44E5-8155-DA688FEDB5DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginSystem", "PluginSystem\PluginSystem.csproj", "{14AB9729-43B6-4B50-9140-55827663B3FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C0BEDF2-3237-44E5-8155-DA688FEDB5DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C0BEDF2-3237-44E5-8155-DA688FEDB5DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C0BEDF2-3237-44E5-8155-DA688FEDB5DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C0BEDF2-3237-44E5-8155-DA688FEDB5DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14AB9729-43B6-4B50-9140-55827663B3FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14AB9729-43B6-4B50-9140-55827663B3FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14AB9729-43B6-4B50-9140-55827663B3FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14AB9729-43B6-4B50-9140-55827663B3FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
