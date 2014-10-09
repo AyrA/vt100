@@ -30,7 +30,12 @@ namespace VT100
         {
 #if DEBUG
             //while debugging we supply fake arguments matching our serial port
-            args = new string[] { "COM3,9600,8,1,n,n" };
+            //args is different from C++ "argv", as it does not contains the
+            //executable call itself, so a length of 0 means 0 arguments.
+            if (args.Length == 0)
+            {
+                args = new string[] { "COM3,9600,8,1,n,n" };
+            }
 #endif
             SerialOptions SO = parseParams(args);
 
@@ -44,7 +49,7 @@ namespace VT100
 
                 if (C.State != VTconsole.TerminalState.Ready)
                 {
-                    Console.WriteLine("Waiting for terminal ready on COM3...");
+                    Console.WriteLine("Waiting for terminal ready on {0}...", SO.Portname);
                     while (C.State != VTconsole.TerminalState.Ready)
                     {
                         if (consoleExit())
@@ -76,6 +81,7 @@ namespace VT100
             }
             else
             {
+                //display help
                 Console.WriteLine("vt100.exe Port[,[Baud][,[Databits][,[Stopbits][,[Parity][,[Handshake]]]]]]");
                 Console.WriteLine(@"
 Port      - Name of Port (COM1, COM2, ...)
