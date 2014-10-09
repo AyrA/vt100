@@ -143,6 +143,7 @@ namespace VT100.PluginSystem
 
             hookEvent = true;
 
+            C.Flush();
             C.Clear();
             C.WriteLine("Type HELP for more information");
             C.WriteLine();
