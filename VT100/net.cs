@@ -358,8 +358,8 @@ namespace VT100.PluginSystem
                     case CONST.TERMTYPE:
                         NS.Write(b, 0, 3); //send back IAC+SB
                         NS.WriteByte(CONST.IS);
-                        b = Encoding.UTF8.GetBytes("vt100");
-                        NS.Write(b, 0, b.Length); //send back "vt100"
+                        b = Encoding.UTF8.GetBytes("vt320");
+                        NS.Write(b, 0, b.Length); //send back "vt320"
                         NS.WriteByte(CONST.IAC);
                         NS.WriteByte(CONST.SE);
                         break;

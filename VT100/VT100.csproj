@@ -36,10 +36,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="net.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Pugins\clsDirList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="Pugins\clsNetworkPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PluginSystem\PluginSystem.csproj">
