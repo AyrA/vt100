@@ -2,6 +2,8 @@
 using System.IO.Ports;
 using VT100.PluginSystem;
 using System.Threading;
+using System.IO;
+using System.CodeDom.Compiler;
 
 namespace VT100
 {
@@ -35,6 +37,7 @@ namespace VT100
             if (args.Length == 0)
             {
                 args = new string[] { "COM3,9600,8,1,n,n" };
+                //args = new string[] { "net.cs" };
             }
 #endif
             SerialOptions SO = parseParams(args);
@@ -61,18 +64,49 @@ namespace VT100
                     Console.WriteLine("Terminal ready");
                 }
 
-                Console.WriteLine("Starting main Plugin...");
-                DirList D = new DirList();
+                IPlugin P = null;
 
-                D.Start(C);
+                if (File.Exists("INIT.cs") || File.Exists("INIT.dll"))
+                {
+                    Console.WriteLine("Found 'INIT' Plugin. Loading external plugin...");
+                    try
+                    {
+                        P = File.Exists("INIT.cs") ? PluginManager.LoadPlugin("INIT.cs") : PluginManager.LoadPluginLib("INIT.dll");
+                        if (P == null)
+                        {
+                            throw new Exception("Cannot run INIT Plugin, see errors below");
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("Loading failed.\r\nError: {0}", ex.Message);
+                    }
+                    if (P == null)
+                    {
+                        if (PluginManager.LastErrors != null)
+                        {
+                            foreach (CompilerError EE in PluginManager.LastErrors)
+                            {
+                                C.WriteLine("[{0};{1}] {2} {3}", EE.Line, EE.Column, EE.ErrorNumber, EE.ErrorText);
+                            }
+                        }
+                        Console.WriteLine("Defaulting to main plugin...");
+                        P = new DirList();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Starting main Plugin...");
+                    P = new DirList();
 
-                Console.WriteLine("Main plugin started");
+                }
+                P.Start(C);
 
-                while (!consoleExit() && D.IsRunning)
+                while (!consoleExit() && P.IsRunning)
                 {
                     Thread.Sleep(500);
                 }
-                D.Stop();
+                P.Stop();
 
                 C.Clear();
                 SP.Close();
@@ -81,9 +115,36 @@ namespace VT100
             }
             else
             {
-                //display help
-                Console.WriteLine("vt100.exe Port[,[Baud][,[Databits][,[Stopbits][,[Parity][,[Handshake]]]]]]");
-                Console.WriteLine(@"
+                if (args.Length > 0 && File.Exists(args[0]))
+                {
+                    try
+                    {
+                        PluginManager.Compile(File.ReadAllText(args[0]), args[0].Substring(0, args[0].LastIndexOf('.')) + ".dll");
+                        Console.WriteLine("File compiled");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error compiling {0}.\r\n{1}", args[0], ex.Message);
+                    }
+                }
+                else
+                {
+                    help();
+                }
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// shows the command line help
+        /// </summary>
+        private static void help()
+        {
+            //display help
+            Console.WriteLine(@"VT100 Terminal Helper Application
+vt100.exe File | Port[,[Baud][,[Databits][,[Stopbits]
+                     [,[Parity][,[Handshake]]]]]]");
+            Console.WriteLine(@"
 Port      - Name of Port (COM1, COM2, ...)
 Baud      - Baud Rate (Defaults to 9600)
 Databits  - Databits (5-8, defaults to 8)
@@ -91,12 +152,13 @@ Stopbits  - Stop bits: 0, 1, 1.5, 2 (defaults to 1)
 Parity    - [N]one, [O]dd, [E]ven, [S]pace, [M]ark (Defaults to N)
 Handshake - Protocol handshake: [N]one, [X]on/Xoff, [R]ts, [B]oth (Default: N)
 
+File      - Instead of parameters, supply a file name of a script and it will
+            be compiled into a DLL file.
+
 To supply parameters, do not use spaces and specify all parameters in front
 of it. The parameter list looks complicated but it indicates, that you can
 specify a row of commas as default. If you want to specify COM3 but only want
 to specify the parity, specify 'COM3,,,,O'");
-            }
-            return 0;
         }
 
         /// <summary>
