@@ -10,6 +10,10 @@ namespace VT100.PluginSystem
 {
     public static class PluginManager
     {
+        private const string CR = "\r";
+        private const string LF = "\n";
+        private const string CRLF = CR + LF;
+
         public static string AppPath
         {
             get
@@ -34,7 +38,7 @@ namespace VT100.PluginSystem
         }
 
         /// <summary>
-        /// Loads Source into Memory
+        /// Loads a source file into Memory
         /// </summary>
         /// <param name="Content">Source Code to load</param>
         /// <returns>Server, or null if Error</returns>
@@ -60,10 +64,11 @@ namespace VT100.PluginSystem
                 if (Line.Trim().ToLower().StartsWith("#include "))
                 {
                     compilerParams.ReferencedAssemblies.Add(Line.Substring(9));
+                    Code += CRLF;
                 }
                 else if (Line.Trim().Length > 0)
                 {
-                    Code += Line.Trim() + "\r\n";
+                    Code += Line.Trim() + CRLF;
                 }
             }
 
@@ -152,17 +157,18 @@ namespace VT100.PluginSystem
             compilerParams.ReferencedAssemblies.Add("System.dll");
             compilerParams.ReferencedAssemblies.Add(Path.Combine(AppPath, "PluginSystem.dll"));
 
-            string[] Lines = Content.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            string[] Lines = Content.Split(new string[] { CRLF, CR, LF }, StringSplitOptions.None);
             foreach (string Line in Lines)
             {
                 //Check if Include Statement or Code
                 if (Line.Trim().ToLower().StartsWith("#include "))
                 {
                     compilerParams.ReferencedAssemblies.Add(Line.Substring(9));
+                    Code += CRLF;
                 }
                 else if (Line.Trim().Length > 0)
                 {
-                    Code += Line.Trim() + "\r\n";
+                    Code += Line.Trim() + CRLF;
                 }
             }
 
