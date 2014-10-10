@@ -138,7 +138,7 @@ namespace VT100.PluginSystem
         private void run()
         {
 #if DEBUG
-            Environment.CurrentDirectory = @"C:\";
+            //Environment.CurrentDirectory = @"C:\";
 #endif
 
             hookEvent = true;
@@ -202,8 +202,10 @@ namespace VT100.PluginSystem
         /// <param name="s">command</param>
         private void exec(string s)
         {
-            switch (s.ToUpper())
+            switch (s.Trim().ToUpper())
             {
+                case "":
+                    return;
                 case "CLS":
                     C.Clear();
                     return;
@@ -211,7 +213,8 @@ namespace VT100.PluginSystem
                     C.WriteLine("Internal Commands:");
                     C.WriteLine("DIR   - Show possible files to execute");
                     C.WriteLine("CLS   - Clear screen");
-                    C.WriteLine("LOAD  - Loads the specified file as plugin");
+                    C.WriteLine("LOAD  - Loads the specified file as plugin (source or DLL)");
+                    C.WriteLine("COMP  - Compiles the specified source file into a DLL");
                     C.WriteLine("TYPE  - sends a file as is to the terminal");
                     C.WriteLine("CD    - change directory");
                     C.WriteLine("HELP  - Shows this message");
@@ -237,14 +240,41 @@ namespace VT100.PluginSystem
                     cont = false;
                     return;
             }
-
-            if ((s.ToUpper().StartsWith("LOAD ")))
+            if ((s.ToUpper().StartsWith("COMP ")))
             {
                 if (File.Exists(s.Substring(5)))
                 {
                     try
                     {
-                        IPlugin P = PluginManager.LoadPlugin(s.Substring(5));
+                        PluginManager.Compile(File.ReadAllText(s.Substring(5)), s.Substring(5, s.LastIndexOf('.') - 5) + ".dll");
+                        C.WriteLine("Successfully compiled");
+                    }
+                    catch (Exception ex)
+                    {
+                        C.WriteLine("Cannot compile. Error:\r\n{0}", ex.Message);
+                    }
+                }
+                else
+                {
+                    C.WriteLine("File not found");
+                }
+                return;
+            }
+            if ((s.ToUpper().StartsWith("LOAD ")))
+            {
+                if (File.Exists(s.Substring(5)))
+                {
+                    IPlugin P = null;
+                    try
+                    {
+                        if (s.ToLower().EndsWith(".dll"))
+                        {
+                            P = PluginManager.LoadPluginLib(s.Substring(5));
+                        }
+                        else
+                        {
+                            P = PluginManager.LoadPlugin(s.Substring(5));
+                        }
                         if (P != null)
                         {
                             P.RecMessage(this, "GETCOMMAND");
@@ -256,7 +286,7 @@ namespace VT100.PluginSystem
                             C.WriteLine("Not a plugin: {0}", s.Substring(5));
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         if (PluginManager.LastErrors != null)
                         {
@@ -271,6 +301,10 @@ namespace VT100.PluginSystem
                             C.WriteLine("Error: {0}", ex.Message);
                         }
                     }
+                }
+                else
+                {
+                    C.WriteLine("File not found");
                 }
                 return;
             }
